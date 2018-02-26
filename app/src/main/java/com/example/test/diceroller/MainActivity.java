@@ -1,5 +1,6 @@
 package com.example.test.diceroller;
 
+import android.content.Intent;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     int d5 = R.drawable.dice5;
     int d6 = R.drawable.dice6;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         ivDie5 = findViewById(R.id.ivDie5);
         ivDie6 = findViewById(R.id.ivDie6);
 
+        Dice = new ArrayList<>();
         Dice.add(ivDie1);
         Dice.add(ivDie2);
         Dice.add(ivDie3);
@@ -86,11 +90,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case R.id.miSettings:
-                showSettings();
-                return true;
-            case R.id.miAbout:
-                showAbout();
+            case R.id.miShowHist:
+                openHistoryActivity();
                 return true;
             case R.id.miClose:
                 closeApp();
@@ -100,11 +101,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showSettings() {
-
-    }
-
-    private void showAbout() {
+    private void openHistoryActivity() {
+        Intent intent = new Intent();
+        intent.setClass(this, HistoryActivity.class);
+        startActivity(intent);
 
     }
 
