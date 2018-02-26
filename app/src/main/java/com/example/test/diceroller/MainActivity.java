@@ -1,7 +1,6 @@
 package com.example.test.diceroller;
 
 import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -15,12 +14,18 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.List;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
-    ImageView ivDice1;
-    ImageView ivDice2;
+    ImageView ivDie1;
+    ImageView ivDie2;
+    ImageView ivDie3;
+    ImageView ivDie4;
+    ImageView ivDie5;
+    ImageView ivDie6;
+    List<ImageView> Dice;
     LinearLayout llHistory;
     Button btnClearHistory;
 
@@ -42,13 +47,31 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ivDice1 = findViewById(R.id.ivDice1);
-        ivDice2 = findViewById(R.id.ivDice2);
+        CreateDieViews();
+
         llHistory = findViewById(R.id.llHistory);
         btnClearHistory = findViewById(R.id.btnClearHistory);
         registerForContextMenu(btnClearHistory);
 
         resetDice();
+    }
+
+
+
+    private void CreateDieViews() {
+        ivDie1 = findViewById(R.id.ivDie1);
+        ivDie2 = findViewById(R.id.ivDie2);
+        ivDie3 = findViewById(R.id.ivDie3);
+        ivDie4 = findViewById(R.id.ivDie4);
+        ivDie5 = findViewById(R.id.ivDie5);
+        ivDie6 = findViewById(R.id.ivDie6);
+
+        Dice.add(ivDie1);
+        Dice.add(ivDie2);
+        Dice.add(ivDie3);
+        Dice.add(ivDie4);
+        Dice.add(ivDie5);
+        Dice.add(ivDie6);
     }
 
 
@@ -92,10 +115,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void roll(View view) {
         amountOfRolls++;
-        diceNum1 = getDiceNum();
-        diceNum2 = getDiceNum();
-        setDiceImage(ivDice1, diceNum1);
-        setDiceImage(ivDice2, diceNum2);
+        diceNum1 = getDieNum();
+        diceNum2 = getDieNum();
+        setDieImage(ivDie1, diceNum1);
+        setDieImage(ivDie2, diceNum2);
         createHistoryLog();
     }
 
@@ -109,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         llHistory.addView(tvHis, llHistory.getChildCount() - 1);
     }
 
-    private void setDiceImage(ImageView iv, int diceNum) {
+    private void setDieImage(ImageView iv, int diceNum) {
         switch (diceNum) {
             case 1:
                 iv.setImageResource(d1);
@@ -135,15 +158,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private int getDiceNum() {
+    private int getDieNum() {
         Random rand = new Random();
         return rand.nextInt(6) + 1;
     }
 
 
     private void resetDice() {
-        setDiceImage(ivDice1, 0);
-        setDiceImage(ivDice2, 0);
+        setDieImage(ivDie1, 0);
+        setDieImage(ivDie2, 0);
     }
 
     public void clearHistory(View view) {
