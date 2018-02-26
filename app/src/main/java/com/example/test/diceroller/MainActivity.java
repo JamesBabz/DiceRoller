@@ -15,7 +15,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.test.diceroller.BE.Roll;
+import com.example.test.diceroller.DAL.Repository;
+
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -44,11 +49,26 @@ public class MainActivity extends AppCompatActivity {
     int d5 = R.drawable.dice5;
     int d6 = R.drawable.dice6;
 
+    Repository repo;
+
+    public MainActivity() {
+        repo = new Repository();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ArrayList<Integer> integers = new ArrayList<>();
+        integers.add(2);
+        integers.add(3);
+        integers.add(4);
+        integers.add(2);
+        integers.add(1);
+        integers.add(4);
+        repo.addRollToList(new Roll(1, new Time(System.currentTimeMillis()), integers));
+        repo.addRollToList(new Roll(2, new Time(System.currentTimeMillis()+1000), integers));
 
         CreateDieViews();
 
@@ -104,7 +124,9 @@ public class MainActivity extends AppCompatActivity {
     private void openHistoryActivity() {
         Intent intent = new Intent();
         intent.setClass(this, HistoryActivity.class);
+        intent.putExtra("Rolls", repo.getAllRolls());
         startActivity(intent);
+
 
     }
 

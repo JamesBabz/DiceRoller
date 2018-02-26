@@ -1,5 +1,6 @@
 package com.example.test.diceroller.BE;
 
+import java.io.Serializable;
 import java.sql.Time;
 import java.util.ArrayList;
 
@@ -7,28 +8,28 @@ import java.util.ArrayList;
  * Created by thomas on 26-02-2018.
  */
 
-public class Roll {
+public class Roll implements Serializable {
     private int id;
     private Time time;
 
 
 
-    private ArrayList<Integer> discs = new ArrayList<>();
+    private ArrayList<Integer> dice = new ArrayList<>();
 
-    public Roll(int id, Time time, ArrayList<Integer> discs) {
+    public Roll(int id, Time time, ArrayList<Integer> dice) {
         this.id = id;
         this.time = time;
-        this.discs = discs;
+        this.dice = dice;
 
     }
 
-    public ArrayList<Integer> getDiscs() {
+    public ArrayList<Integer> getDice() {
 
-        return discs;
+        return dice;
     }
 
-    public void setDiscs(ArrayList<Integer> discs) {
-        this.discs = discs;
+    public void setDice(ArrayList<Integer> dice) {
+        this.dice = dice;
     }
 
     public int getId() {
