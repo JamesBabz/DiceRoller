@@ -9,18 +9,15 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.example.test.diceroller.BE.Roll;
 import com.example.test.diceroller.DAL.Repository;
 
 import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -32,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView ivDie4;
     ImageView ivDie5;
     ImageView ivDie6;
-    List<ImageView> Dice;
+    List<ImageView> dice;
     LinearLayout llHistory;
     Button btnClearHistory;
 
@@ -53,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
     public MainActivity() {
         repo = new Repository();
+        dice = new ArrayList<>();
     }
 
     @Override
@@ -68,17 +66,12 @@ public class MainActivity extends AppCompatActivity {
         integers.add(1);
         integers.add(4);
         repo.addRollToList(new Roll(1, new Time(System.currentTimeMillis()), integers));
-        repo.addRollToList(new Roll(2, new Time(System.currentTimeMillis()+1000), integers));
+        repo.addRollToList(new Roll(2, new Time(System.currentTimeMillis() + 1000), integers));
 
         CreateDieViews();
 
-        llHistory = findViewById(R.id.llHistory);
-        btnClearHistory = findViewById(R.id.btnClearHistory);
-        registerForContextMenu(btnClearHistory);
-
         resetDice();
     }
-
 
 
     private void CreateDieViews() {
@@ -89,13 +82,12 @@ public class MainActivity extends AppCompatActivity {
         ivDie5 = findViewById(R.id.ivDie5);
         ivDie6 = findViewById(R.id.ivDie6);
 
-        Dice = new ArrayList<>();
-        Dice.add(ivDie1);
-        Dice.add(ivDie2);
-        Dice.add(ivDie3);
-        Dice.add(ivDie4);
-        Dice.add(ivDie5);
-        Dice.add(ivDie6);
+        dice.add(ivDie1);
+        dice.add(ivDie2);
+        dice.add(ivDie3);
+        dice.add(ivDie4);
+        dice.add(ivDie5);
+        dice.add(ivDie6);
     }
 
 
@@ -137,21 +129,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void roll(View view) {
         amountOfRolls++;
-        diceNum1 = getDieNum();
-        diceNum2 = getDieNum();
-        setDieImage(ivDie1, diceNum1);
-        setDieImage(ivDie2, diceNum2);
-        createHistoryLog();
-    }
-
-    private void createHistoryLog() {
-        TextView tvHis = new TextView(this);
-        tvHis.setText(amountOfRolls + ": " + diceNum1 + " - " + diceNum2);
-        tvHis.setTag("HistText");
-        if (llHistory.getChildCount() >= 7) {
-            llHistory.removeViewAt(1);
+        ArrayList<Integer> diceRolls = new ArrayList<>();
+        for (int i = 0; i < dice.size(); i++) {
+            int diceNum = getDieNum();
+            diceRolls.add(diceNum);
+            setDieImage(dice.get(i), diceNum);
         }
-        llHistory.addView(tvHis, llHistory.getChildCount() - 1);
+        repo.addRollToList(new Roll(amountOfRolls, new Time(System.currentTimeMillis()), diceRolls));
     }
 
     private void setDieImage(ImageView iv, int diceNum) {
@@ -187,68 +171,17 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void resetDice() {
-        setDieImage(ivDie1, 0);
-        setDieImage(ivDie2, 0);
-    }
-
-    public void clearHistory(View view) {
-        clearHistory(view, true);
-    }
-
-    public void clearHistory(View view, boolean all) {
-
-        int childCount = llHistory.getChildCount();
-        if(llHistory.findViewWithTag("HistText") == null){
-            return;
-        }
-        if(all){
-            amountOfRolls = 0;
-            for (int i = 0; i < childCount-2; i++) {
-                llHistory.removeView(llHistory.findViewWithTag("HistText"));
-            }
-        }else{
-            amountOfRolls--;
-            llHistory.removeViewAt(childCount-2);
-        }
-
-        resetDice();
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View view,
-                                    ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, view, menuInfo);
-
-        if(view == btnClearHistory){
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.menu_clear_history, menu);
-        }
-
-
-
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        switch (item.getItemId()) {
-            case R.id.miClearAll:
-                clearHistory(null, true);
-                return true;
-            case R.id.miClearLast:
-                clearHistory(null, false);
-                return true;
-            default:
-                return super.onContextItemSelected(item);
+        for (int i = 0; i < dice.size(); i++) {
+            setDieImage(dice.get(i), 0);
         }
     }
+
 
     @Override
     public void finish() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             super.finishAndRemoveTask();
-        }
-        else {
+        } else {
             super.finish();
         }
     }
