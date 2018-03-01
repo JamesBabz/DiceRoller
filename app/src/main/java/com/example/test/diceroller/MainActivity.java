@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // parent.getItemAtPosition(pos)
         int amount = Integer.parseInt(spinAmount.getItemAtPosition(pos).toString());
         setDiceAmount(amount);
+        resetDice();
     }
 
     @Override
