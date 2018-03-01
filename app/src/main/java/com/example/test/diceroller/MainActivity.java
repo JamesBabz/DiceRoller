@@ -4,14 +4,17 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.ContextMenu;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 
 import com.example.test.diceroller.BE.Roll;
 import com.example.test.diceroller.DAL.Repository;
@@ -21,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     ImageView ivDie1;
     ImageView ivDie2;
@@ -32,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     List<ImageView> dice;
     LinearLayout llHistory;
     Button btnClearHistory;
+    Spinner spinAmount;
 
 
     int amountOfRolls = 0;
@@ -58,6 +62,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        createDieViews();
+
+        populateSpinner();
+
+       // createMockData();
+
+
+        resetDice();
+    }
+
+    private void createMockData() {
         ArrayList<Integer> integers = new ArrayList<>();
         integers.add(2);
         integers.add(3);
@@ -67,14 +82,47 @@ public class MainActivity extends AppCompatActivity {
         integers.add(4);
         repo.addRollToList(new Roll(1, new Time(System.currentTimeMillis()), integers));
         repo.addRollToList(new Roll(2, new Time(System.currentTimeMillis() + 1000), integers));
+    }
 
-        CreateDieViews();
-
-        resetDice();
+    private void populateSpinner() {
+        spinAmount = (Spinner) findViewById(R.id.spinAmount);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.diceAmount, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinAmount.setAdapter(adapter);
+        spinAmount.setOnItemSelectedListener(this);
+        int amount = Integer.parseInt(spinAmount.getItemAtPosition(0).toString());
+        setDiceAmount(amount);
     }
 
 
-    private void CreateDieViews() {
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view,
+                               int pos, long id) {
+        // An item was selected. You can retrieve the selected item using
+        // parent.getItemAtPosition(pos)
+        int amount = Integer.parseInt(spinAmount.getItemAtPosition(pos).toString());
+        setDiceAmount(amount);
+        resetDice();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
+    }
+
+    private void setDiceAmount(int amount) {
+        for(int i = 0; i < dice.size(); i++){
+            if(i < amount){
+                dice.get(i).setVisibility(View.VISIBLE);
+            }else{
+                dice.get(i).setVisibility(View.INVISIBLE);
+            }
+        }
+    }
+
+
+    private void createDieViews() {
         ivDie1 = findViewById(R.id.ivDie1);
         ivDie2 = findViewById(R.id.ivDie2);
         ivDie3 = findViewById(R.id.ivDie3);
@@ -131,6 +179,9 @@ public class MainActivity extends AppCompatActivity {
         amountOfRolls++;
         ArrayList<Integer> diceRolls = new ArrayList<>();
         for (int i = 0; i < dice.size(); i++) {
+            if(dice.get(i).getVisibility() == View.INVISIBLE){
+                break;
+            }
             int diceNum = getDieNum();
             diceRolls.add(diceNum);
             setDieImage(dice.get(i), diceNum);
