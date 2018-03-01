@@ -165,9 +165,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Intent intent = new Intent();
         intent.setClass(this, HistoryActivity.class);
         intent.putExtra("Rolls", repo.getAllRolls());
-        startActivity(intent);
+        startActivityForResult(intent,1 );
 
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode != RESULT_CANCELED) {
+
+            if (resultCode == RESULT_OK) {
+                repo.DeleteAllRolls();
+                amountOfRolls = 0;
+            }
+        }
     }
 
     private void closeApp() {
@@ -186,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             diceRolls.add(diceNum);
             setDieImage(dice.get(i), diceNum);
         }
-        repo.addRollToList(new Roll(amountOfRolls, new Time(System.currentTimeMillis()), diceRolls));
+        repo.addRollToList(new Roll(amountOfRolls, new Time(System.currentTimeMillis() + 3600000), diceRolls));
     }
 
     private void setDieImage(ImageView iv, int diceNum) {
@@ -236,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             super.finish();
         }
     }
+
 
 
 }

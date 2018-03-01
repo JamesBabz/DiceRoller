@@ -23,4 +23,9 @@ public class Repository {
     public void addRollToList(Roll roll){
         allRolls.add(roll);
     }
+
+    public void DeleteAllRolls()
+    {
+        allRolls.clear();
+    }
 }
