@@ -48,27 +48,16 @@ public class HistoryActivity extends Activity {
         adapter = new RollAdapter(this, R.layout.cell_extended, rolls);
         historyList.setAdapter(adapter);
 
-//        btnClear.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                setResult(1);
-//                finish();
-//            }
-//        });
+
     }
 
 
 
     public void clearAll(View view){
 
-        setResult(1);
+        setResult(RESULT_OK);
         finish();
 
-//        Context context = getApplicationContext();
-//        CharSequence text = "History is going to be cleared";
-//        int duration = Toast.LENGTH_SHORT;
-//
-//        Toast toast = Toast.makeText(context, text, duration);
-//        toast.show();
 
     }
 

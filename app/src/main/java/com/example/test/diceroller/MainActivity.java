@@ -177,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             if (resultCode == RESULT_OK) {
                 repo.DeleteAllRolls();
+                amountOfRolls = 0;
             }
         }
     }
@@ -197,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             diceRolls.add(diceNum);
             setDieImage(dice.get(i), diceNum);
         }
-        repo.addRollToList(new Roll(amountOfRolls, new Time(System.currentTimeMillis()), diceRolls));
+        repo.addRollToList(new Roll(amountOfRolls, new Time(System.currentTimeMillis() + 3600000), diceRolls));
     }
 
     private void setDieImage(ImageView iv, int diceNum) {
