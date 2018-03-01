@@ -1,28 +1,41 @@
 package com.example.test.diceroller;
 
+import android.content.Intent;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.ContextMenu;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.Spinner;
 
+import com.example.test.diceroller.BE.Roll;
+import com.example.test.diceroller.DAL.Repository;
+
+import java.sql.Time;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
-    ImageView ivDice1;
-    ImageView ivDice2;
+    ImageView ivDie1;
+    ImageView ivDie2;
+    ImageView ivDie3;
+    ImageView ivDie4;
+    ImageView ivDie5;
+    ImageView ivDie6;
+    List<ImageView> dice;
     LinearLayout llHistory;
     Button btnClearHistory;
+    Spinner spinAmount;
 
 
     int amountOfRolls = 0;
@@ -37,18 +50,92 @@ public class MainActivity extends AppCompatActivity {
     int d5 = R.drawable.dice5;
     int d6 = R.drawable.dice6;
 
+    Repository repo;
+
+    public MainActivity() {
+        repo = new Repository();
+        dice = new ArrayList<>();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ivDice1 = findViewById(R.id.ivDice1);
-        ivDice2 = findViewById(R.id.ivDice2);
-        llHistory = findViewById(R.id.llHistory);
-        btnClearHistory = findViewById(R.id.btnClearHistory);
-        registerForContextMenu(btnClearHistory);
+        createDieViews();
+
+        populateSpinner();
+
+       // createMockData();
+
 
         resetDice();
+    }
+
+    private void createMockData() {
+        ArrayList<Integer> integers = new ArrayList<>();
+        integers.add(2);
+        integers.add(3);
+        integers.add(4);
+        integers.add(2);
+        integers.add(1);
+        integers.add(4);
+        repo.addRollToList(new Roll(1, new Time(System.currentTimeMillis()), integers));
+        repo.addRollToList(new Roll(2, new Time(System.currentTimeMillis() + 1000), integers));
+    }
+
+    private void populateSpinner() {
+        spinAmount = (Spinner) findViewById(R.id.spinAmount);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.diceAmount, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinAmount.setAdapter(adapter);
+        spinAmount.setOnItemSelectedListener(this);
+        int amount = Integer.parseInt(spinAmount.getItemAtPosition(0).toString());
+        setDiceAmount(amount);
+    }
+
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view,
+                               int pos, long id) {
+        // An item was selected. You can retrieve the selected item using
+        // parent.getItemAtPosition(pos)
+        int amount = Integer.parseInt(spinAmount.getItemAtPosition(pos).toString());
+        setDiceAmount(amount);
+        resetDice();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
+    }
+
+    private void setDiceAmount(int amount) {
+        for(int i = 0; i < dice.size(); i++){
+            if(i < amount){
+                dice.get(i).setVisibility(View.VISIBLE);
+            }else{
+                dice.get(i).setVisibility(View.INVISIBLE);
+            }
+        }
+    }
+
+
+    private void createDieViews() {
+        ivDie1 = findViewById(R.id.ivDie1);
+        ivDie2 = findViewById(R.id.ivDie2);
+        ivDie3 = findViewById(R.id.ivDie3);
+        ivDie4 = findViewById(R.id.ivDie4);
+        ivDie5 = findViewById(R.id.ivDie5);
+        ivDie6 = findViewById(R.id.ivDie6);
+
+        dice.add(ivDie1);
+        dice.add(ivDie2);
+        dice.add(ivDie3);
+        dice.add(ivDie4);
+        dice.add(ivDie5);
+        dice.add(ivDie6);
     }
 
 
@@ -63,11 +150,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case R.id.miSettings:
-                showSettings();
-                return true;
-            case R.id.miAbout:
-                showAbout();
+            case R.id.miShowHist:
+                openHistoryActivity();
                 return true;
             case R.id.miClose:
                 closeApp();
@@ -77,12 +161,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showSettings() {
+    private void openHistoryActivity() {
+        Intent intent = new Intent();
+        intent.setClass(this, HistoryActivity.class);
+        intent.putExtra("Rolls", repo.getAllRolls());
+        startActivityForResult(intent,1 );
+
 
     }
 
-    private void showAbout() {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode != RESULT_CANCELED) {
 
+            if (resultCode == RESULT_OK) {
+                repo.DeleteAllRolls();
+                amountOfRolls = 0;
+            }
+        }
     }
 
     private void closeApp() {
@@ -92,24 +189,19 @@ public class MainActivity extends AppCompatActivity {
 
     public void roll(View view) {
         amountOfRolls++;
-        diceNum1 = getDiceNum();
-        diceNum2 = getDiceNum();
-        setDiceImage(ivDice1, diceNum1);
-        setDiceImage(ivDice2, diceNum2);
-        createHistoryLog();
-    }
-
-    private void createHistoryLog() {
-        TextView tvHis = new TextView(this);
-        tvHis.setText(amountOfRolls + ": " + diceNum1 + " - " + diceNum2);
-        tvHis.setTag("HistText");
-        if (llHistory.getChildCount() >= 7) {
-            llHistory.removeViewAt(1);
+        ArrayList<Integer> diceRolls = new ArrayList<>();
+        for (int i = 0; i < dice.size(); i++) {
+            if(dice.get(i).getVisibility() == View.INVISIBLE){
+                break;
+            }
+            int diceNum = getDieNum();
+            diceRolls.add(diceNum);
+            setDieImage(dice.get(i), diceNum);
         }
-        llHistory.addView(tvHis, llHistory.getChildCount() - 1);
+        repo.addRollToList(new Roll(amountOfRolls, new Time(System.currentTimeMillis() + 3600000), diceRolls));
     }
 
-    private void setDiceImage(ImageView iv, int diceNum) {
+    private void setDieImage(ImageView iv, int diceNum) {
         switch (diceNum) {
             case 1:
                 iv.setImageResource(d1);
@@ -135,78 +227,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private int getDiceNum() {
+    private int getDieNum() {
         Random rand = new Random();
         return rand.nextInt(6) + 1;
     }
 
 
     private void resetDice() {
-        setDiceImage(ivDice1, 0);
-        setDiceImage(ivDice2, 0);
-    }
-
-    public void clearHistory(View view) {
-        clearHistory(view, true);
-    }
-
-    public void clearHistory(View view, boolean all) {
-
-        int childCount = llHistory.getChildCount();
-        if(llHistory.findViewWithTag("HistText") == null){
-            return;
-        }
-        if(all){
-            amountOfRolls = 0;
-            for (int i = 0; i < childCount-2; i++) {
-                llHistory.removeView(llHistory.findViewWithTag("HistText"));
-            }
-        }else{
-            amountOfRolls--;
-            llHistory.removeViewAt(childCount-2);
-        }
-
-        resetDice();
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View view,
-                                    ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, view, menuInfo);
-
-        if(view == btnClearHistory){
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.menu_clear_history, menu);
-        }
-
-
-
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        switch (item.getItemId()) {
-            case R.id.miClearAll:
-                clearHistory(null, true);
-                return true;
-            case R.id.miClearLast:
-                clearHistory(null, false);
-                return true;
-            default:
-                return super.onContextItemSelected(item);
+        for (int i = 0; i < dice.size(); i++) {
+            setDieImage(dice.get(i), 0);
         }
     }
+
 
     @Override
     public void finish() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             super.finishAndRemoveTask();
-        }
-        else {
+        } else {
             super.finish();
         }
     }
+
 
 
 }
