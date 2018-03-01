@@ -165,9 +165,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Intent intent = new Intent();
         intent.setClass(this, HistoryActivity.class);
         intent.putExtra("Rolls", repo.getAllRolls());
-        startActivity(intent);
+        startActivityForResult(intent,1 );
 
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode != RESULT_CANCELED) {
+
+            if (resultCode == RESULT_OK) {
+                repo.DeleteAllRolls();
+            }
+        }
     }
 
     private void closeApp() {
@@ -236,6 +247,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             super.finish();
         }
     }
+
 
 
 }
